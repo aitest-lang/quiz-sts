@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithm Quiz App</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Algorithm Quiz</h1>
+            <div class="controls">
+                <div class="theme-toggle">
+                    <button id="themeBtn"><i class="fas fa-moon"></i></button>
+                </div>
+                <div class="mode-toggle">
+                    <button id="modeBtn" class="active">Learning Mode</button>
+                    <button id="repetitionBtn">Repetition Mode</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="quiz-container">
+            <div id="progressTracker" class="progress-tracker hidden">
+                <span id="remainingCount">0</span> questions remaining
+            </div>
+            
+            <div id="quizArea"></div>
+            
+            <div id="completionMessage" class="completion-message hidden">
+                <div class="confetti"></div>
+                <h2>All Answers Correct!</h2>
+                <p>Great job! You've mastered this quiz.</p>
+                <button id="restartBtn">Start Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="questions.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
