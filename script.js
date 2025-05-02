@@ -8,11 +8,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const remainingCount = document.getElementById('remainingCount');
     const completionMessage = document.getElementById('completionMessage');
     const restartBtn = document.getElementById('restartBtn');
+    const nextBtn = document.createElement('button');
+    nextBtn.id = 'nextBtn';
+    nextBtn.textContent = 'Next Question';
+    nextBtn.classList.add('hidden');
+    quizArea.parentNode.insertBefore(nextBtn, quizArea.nextSibling);
 
     // State
     let currentMode = 'learning';
     let retryQueue = [];
-    let incorrectAnswers = 0;
+    let incorrectAnswers = [];
+    let currentQuestionIndex = 0;
+    let displayedQuestions = [];
     
     // Initialize the app
     renderQuiz();
@@ -45,15 +52,38 @@ document.addEventListener('DOMContentLoaded', () => {
         renderQuiz();
     });
     
+    nextBtn.addEventListener('click', () => {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < displayedQuestions.length) {
+            renderCurrentQuestion();
+        } else {
+            if (currentMode === 'repetition' && incorrectAnswers.length > 0) {
+                retryQueue = [...incorrectAnswers];
+                incorrectAnswers = [];
+                currentQuestionIndex = 0;
+                displayedQuestions = [...retryQueue];
+                shuffleArray(displayedQuestions);
+                progressTracker.classList.remove('hidden');
+                remainingCount.textContent = retryQueue.length;
+                renderCurrentQuestion();
+            } else {
+                showCompletionMessage();
+            }
+        }
+    });
+    
     // Functions
     function renderQuiz() {
         quizArea.innerHTML = '';
+        nextBtn.classList.add('hidden');
+        currentQuestionIndex = 0;
         
         if (currentMode === 'repetition') {
             if (retryQueue.length === 0) {
                 // First run in repetition mode
                 retryQueue = [...questions];
-                incorrectAnswers = 0;
+                incorrectAnswers = [];
+                shuffleArray(retryQueue);
             }
             
             if (retryQueue.length === 0) {
@@ -64,29 +94,37 @@ document.addEventListener('DOMContentLoaded', () => {
             
             progressTracker.classList.remove('hidden');
             remainingCount.textContent = retryQueue.length;
-            
-            retryQueue.forEach((question, index) => {
-                createQuestionCard(question, index);
-            });
+            displayedQuestions = [...retryQueue];
         } else {
             // Learning mode
             progressTracker.classList.add('hidden');
+            incorrectAnswers = [];
             
             if (questions.length === 0) {
                 quizArea.innerHTML = '<p>No questions available.</p>';
                 return;
             }
             
-            questions.forEach((question, index) => {
-                createQuestionCard(question, index);
-            });
+            displayedQuestions = [...questions];
+            shuffleArray(displayedQuestions);
+        }
+        
+        renderCurrentQuestion();
+    }
+    
+    function renderCurrentQuestion() {
+        quizArea.innerHTML = '';
+        const question = displayedQuestions[currentQuestionIndex];
+        createQuestionCard(question);
+        
+        if (displayedQuestions.length > 1) {
+            nextBtn.classList.remove('hidden');
         }
     }
     
-    function createQuestionCard(question, index) {
+    function createQuestionCard(question) {
         const card = document.createElement('div');
         card.className = 'question-card';
-        card.dataset.index = index;
         
         const questionText = document.createElement('div');
         questionText.className = 'question-text';
@@ -126,13 +164,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Remove from retry queue
                 retryQueue = retryQueue.filter(q => q.question !== question.question);
                 remainingCount.textContent = retryQueue.length;
-                
-                // Check if all questions are answered correctly
-                if (retryQueue.length === 0) {
-                    setTimeout(() => {
-                        showCompletionMessage();
-                    }, 1000);
-                }
             }
         } else {
             // Incorrect answer
@@ -149,34 +180,47 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             
             if (currentMode === 'repetition') {
-                incorrectAnswers++;
-                // The question will remain in the retry queue
+                incorrectAnswers.push(question);
             }
         }
         
-        // In learning mode, we can show feedback
-        if (currentMode === 'learning') {
-            const feedback = document.createElement('div');
-            feedback.className = selectedOption === question.correctAnswer ? 'feedback correct' : 'feedback incorrect';
-            
-            const icon = document.createElement('i');
-            icon.className = selectedOption === question.correctAnswer ? 'fas fa-check-circle' : 'fas fa-times-circle';
-            
-            const text = document.createElement('span');
-            text.textContent = selectedOption === question.correctAnswer 
-                ? 'Correct! Well done.' 
-                : `Incorrect. The correct answer is "${question.correctAnswer}".`;
-            
-            feedback.appendChild(icon);
-            feedback.appendChild(text);
-            
-            optionBtn.parentElement.parentElement.appendChild(feedback);
+        // Show feedback
+        const feedback = document.createElement('div');
+        feedback.className = selectedOption === question.correctAnswer ? 'feedback correct' : 'feedback incorrect';
+        
+        const icon = document.createElement('i');
+        icon.className = selectedOption === question.correctAnswer ? 'fas fa-check-circle' : 'fas fa-times-circle';
+        
+        const text = document.createElement('span');
+        text.textContent = selectedOption === question.correctAnswer 
+            ? 'Correct! Well done.' 
+            : `Incorrect. The correct answer is "${question.correctAnswer}".`;
+        
+        feedback.appendChild(icon);
+        feedback.appendChild(text);
+        
+        optionBtn.parentElement.parentElement.appendChild(feedback);
+        
+        // Auto-proceed to next question after delay in learning mode
+        if (currentMode === 'learning' && displayedQuestions.length > 1) {
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < displayedQuestions.length) {
+                    renderCurrentQuestion();
+                } else {
+                    // Reached end of questions
+                    nextBtn.classList.add('hidden');
+                    quizArea.innerHTML += '<p class="end-message">You have completed all questions!</p>';
+                }
+            }, 1500);
         }
     }
     
     function resetQuiz() {
         retryQueue = [];
-        incorrectAnswers = 0;
+        incorrectAnswers = [];
+        currentQuestionIndex = 0;
+        displayedQuestions = [];
         completionMessage.classList.add('hidden');
         // Re-shuffle questions and options
         shuffleArray(questions);
@@ -184,6 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function showCompletionMessage() {
+        nextBtn.classList.add('hidden');
         completionMessage.classList.remove('hidden');
         createConfetti();
     }
