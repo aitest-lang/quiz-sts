@@ -115,14 +115,59 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderCurrentQuestion() {
         quizArea.innerHTML = '';
         const question = displayedQuestions[currentQuestionIndex];
-        createQuestionCard(question);
         
-        if (displayedQuestions.length > 1) {
+        if (currentMode === 'learning') {
+            createLearningCard(question);
+        } else {
+            createQuizCard(question);
+        }
+        
+        if (displayedQuestions.length > 1 && currentMode === 'repetition') {
             nextBtn.classList.remove('hidden');
         }
     }
     
-    function createQuestionCard(question) {
+    function createLearningCard(question) {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        
+        const questionText = document.createElement('div');
+        questionText.className = 'question-text';
+        questionText.textContent = question.question;
+        card.appendChild(questionText);
+        
+        const answerContainer = document.createElement('div');
+        answerContainer.className = 'answer-container';
+        
+        const answerLabel = document.createElement('div');
+        answerLabel.className = 'answer-label';
+        answerLabel.textContent = 'Correct Answer:';
+        
+        const answerText = document.createElement('div');
+        answerText.className = 'answer-text correct';
+        answerText.innerHTML = `${question.correctAnswer} <i class="fas fa-check"></i>`;
+        
+        answerContainer.appendChild(answerLabel);
+        answerContainer.appendChild(answerText);
+        card.appendChild(answerContainer);
+        
+        quizArea.appendChild(card);
+        
+        // Auto-proceed to next question after delay in learning mode
+        if (displayedQuestions.length > 1) {
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < displayedQuestions.length) {
+                    renderCurrentQuestion();
+                } else {
+                    // Reached end of questions
+                    quizArea.innerHTML += '<p class="end-message">You have completed all questions!</p>';
+                }
+            }, 3000); // 3 seconds delay for learning
+        }
+    }
+    
+    function createQuizCard(question) {
         const card = document.createElement('div');
         card.className = 'question-card';
         
@@ -138,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const optionBtn = document.createElement('button');
             optionBtn.className = 'option-btn';
             optionBtn.textContent = option;
-            optionBtn.addEventListener('click', () => handleOptionClick(optionBtn, option, question));
+            optionBtn.addEventListener('click', () => handleQuizAnswer(optionBtn, option, question));
             optionsContainer.appendChild(optionBtn);
         });
         
@@ -146,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
         quizArea.appendChild(card);
     }
     
-    function handleOptionClick(optionBtn, selectedOption, question) {
+    function handleQuizAnswer(optionBtn, selectedOption, question) {
         // Disable all options for this question
         const options = optionBtn.parentElement.querySelectorAll('.option-btn');
         options.forEach(btn => {
@@ -160,11 +205,28 @@ document.addEventListener('DOMContentLoaded', () => {
             optionBtn.innerHTML = `${selectedOption} <i class="fas fa-check"></i>`;
             optionBtn.classList.add('bounce');
             
-            if (currentMode === 'repetition') {
-                // Remove from retry queue
-                retryQueue = retryQueue.filter(q => q.question !== question.question);
-                remainingCount.textContent = retryQueue.length;
-            }
+            // Remove from retry queue
+            retryQueue = retryQueue.filter(q => q.question !== question.question);
+            remainingCount.textContent = retryQueue.length;
+            
+            // Auto-proceed to next question after delay for correct answer
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < displayedQuestions.length) {
+                    renderCurrentQuestion();
+                } else if (incorrectAnswers.length > 0) {
+                    // Move to retry incorrect questions
+                    retryQueue = [...incorrectAnswers];
+                    incorrectAnswers = [];
+                    currentQuestionIndex = 0;
+                    displayedQuestions = [...retryQueue];
+                    shuffleArray(displayedQuestions);
+                    remainingCount.textContent = retryQueue.length;
+                    renderCurrentQuestion();
+                } else {
+                    showCompletionMessage();
+                }
+            }, 1000); // 1 second delay for correct answer
         } else {
             // Incorrect answer
             optionBtn.classList.add('incorrect');
@@ -179,40 +241,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
             
-            if (currentMode === 'repetition') {
-                incorrectAnswers.push(question);
-            }
-        }
-        
-        // Show feedback
-        const feedback = document.createElement('div');
-        feedback.className = selectedOption === question.correctAnswer ? 'feedback correct' : 'feedback incorrect';
-        
-        const icon = document.createElement('i');
-        icon.className = selectedOption === question.correctAnswer ? 'fas fa-check-circle' : 'fas fa-times-circle';
-        
-        const text = document.createElement('span');
-        text.textContent = selectedOption === question.correctAnswer 
-            ? 'Correct! Well done.' 
-            : `Incorrect. The correct answer is "${question.correctAnswer}".`;
-        
-        feedback.appendChild(icon);
-        feedback.appendChild(text);
-        
-        optionBtn.parentElement.parentElement.appendChild(feedback);
-        
-        // Auto-proceed to next question after delay in learning mode
-        if (currentMode === 'learning' && displayedQuestions.length > 1) {
-            setTimeout(() => {
-                currentQuestionIndex++;
-                if (currentQuestionIndex < displayedQuestions.length) {
-                    renderCurrentQuestion();
-                } else {
-                    // Reached end of questions
-                    nextBtn.classList.add('hidden');
-                    quizArea.innerHTML += '<p class="end-message">You have completed all questions!</p>';
-                }
-            }, 1500);
+            incorrectAnswers.push(question);
+            
+            // Show next button for incorrect answer
+            nextBtn.classList.remove('hidden');
         }
     }
     
