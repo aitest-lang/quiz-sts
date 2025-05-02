@@ -9,6 +9,23 @@
     --shadow-color: rgba(0, 0, 0, 0.1);
     --hover-color: #f1f1f1;
 }
+.next-btn-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+#nextBtn {
+    margin: 20px auto;
+    display: block;
+}
+
+.end-message {
+    text-align: center;
+    margin-top: 20px;
+    font-weight: bold;
+    color: var(--primary-color);
+    animation: fadeIn 1s;
+}
 
 .dark-mode {
     --primary-color: #8ab4f8;
