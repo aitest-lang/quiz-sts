@@ -147,7 +147,7 @@ const questions = [
             "4",
             "8"
         ],
-        "correctAnswer": "3 (2^3 = 8)"
+        "correctAnswer": "3"
     },
     {
         "question": "What are the components of a boundary traversal of a binary tree?",
@@ -207,7 +207,7 @@ const questions = [
             "Priority Queue",
             "Linked List"
         ],
-        "correctAnswer": "Stack (implicitly through the call stack)"
+        "correctAnswer": "Stack"
     },
     {
         "question": "Which of the following describes the order in which DFS visits nodes in a graph?",
@@ -507,7 +507,7 @@ const questions = [
             "TreeMap",
             "HashSet"
         ],
-        "correctAnswer": "TreeMap (to maintain sorted order)"
+        "correctAnswer": "TreeMap"
     },
     {
         "question": "Which traversal method is used as the basis for vertical order traversal?",
@@ -537,7 +537,7 @@ const questions = [
             "O(n^2)",
             "O(log n)"
         ],
-        "correctAnswer": "O(n log n) (due to the TreeMap)"
+        "correctAnswer": "O(n log n)"
     },
     {
         "question": "If two nodes have the same horizontal distance, how are they ordered in the vertical order traversal output?",
