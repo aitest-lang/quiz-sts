@@ -118,12 +118,15 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (currentMode === 'learning') {
             createLearningCard(question);
+            // Show next button if there are more questions
+            if (displayedQuestions.length > 1) {
+                nextBtn.classList.remove('hidden');
+            }
         } else {
             createQuizCard(question);
-        }
-        
-        if (displayedQuestions.length > 1 && currentMode === 'repetition') {
-            nextBtn.classList.remove('hidden');
+            if (displayedQuestions.length > 1) {
+                nextBtn.classList.remove('hidden');
+            }
         }
     }
     
@@ -152,19 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
         card.appendChild(answerContainer);
         
         quizArea.appendChild(card);
-        
-        // Auto-proceed to next question after delay in learning mode
-        if (displayedQuestions.length > 1) {
-            setTimeout(() => {
-                currentQuestionIndex++;
-                if (currentQuestionIndex < displayedQuestions.length) {
-                    renderCurrentQuestion();
-                } else {
-                    // Reached end of questions
-                    quizArea.innerHTML += '<p class="end-message">You have completed all questions!</p>';
-                }
-            }, 3000); // 3 seconds delay for learning
-        }
     }
     
     function createQuizCard(question) {
