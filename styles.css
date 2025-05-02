@@ -14,6 +14,53 @@
     margin-top: 20px;
 }
 
+/* Add these new styles */
+.answer-container {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: rgba(52, 168, 83, 0.1);
+    animation: fadeIn 0.5s;
+}
+
+.answer-label {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: var(--secondary-color);
+}
+
+.answer-text {
+    padding: 10px;
+    border-radius: 5px;
+    background-color: var(--secondary-color);
+    color: white;
+    display: inline-block;
+}
+
+#nextBtn {
+    margin: 20px auto;
+    display: block;
+    padding: 12px 24px;
+    font-size: 1rem;
+}
+
+.end-message {
+    text-align: center;
+    margin-top: 20px;
+    font-weight: bold;
+    color: var(--primary-color);
+    animation: fadeIn 1s;
+}
+
+/* Adjust existing styles */
+.options-container {
+    margin-top: 20px;
+}
+
+.question-card {
+    margin-bottom: 0; /* Remove extra margin since we're showing one at a time */
+}
+
 #nextBtn {
     margin: 20px auto;
     display: block;
