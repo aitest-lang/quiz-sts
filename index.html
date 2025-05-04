@@ -6,6 +6,20 @@
     <title>Algorithm Quiz App</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        footer {
+            text-align: center;
+            padding: 10px;
+            background: #007BFF;
+            color: white;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            font-family: 'Arial', sans-serif;
+            font-size: 1em;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -26,9 +40,9 @@
             <div id="progressTracker" class="progress-tracker hidden">
                 <span id="remainingCount">0</span> questions remaining
             </div>
-            
+
             <div id="quizArea"></div>
-            
+
             <div id="completionMessage" class="completion-message hidden">
                 <div class="confetti"></div>
                 <h2>All Answers Correct!</h2>
@@ -37,6 +51,10 @@
             </div>
         </div>
     </div>
+
+    <footer>
+        <p>Made with love by Mounish</p>
+    </footer>
 
     <script src="questions.js"></script>
     <script src="script.js"></script>
